@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Universidade Cooperativa Chiquinho UP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --gold:#C8922A; --gold-bright:#E8A020; --gold-pale:#FFF0CC;
+    --brown-dark:#2C1505; --brown-mid:#5C3010; --cream:#FDF8F0;
+    --red:#D71920; --red-dark:#A8131A;
+    --green:#2E7D32; --amber:#B8860B;
+    --radius:14px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Nunito',sans-serif;
+    background:linear-gradient(160deg, var(--cream) 0%, #FBF1DC 100%);
+    color:var(--brown-dark);
+    min-height:100vh;
+    display:flex; flex-direction:column; align-items:center;
+    padding:24px 16px 60px;
+  }
+  h1,h2,h3,.display{font-family:'Montserrat',sans-serif;}
+  .topbar{
+    width:100%; max-width:720px; display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:24px;
+  }
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand-mark{
+    width:38px; height:38px; border-radius:10px;
+    background:linear-gradient(135deg, var(--gold-bright), var(--gold));
+    display:flex; align-items:center; justify-content:center;
+    color:#fff; font-weight:800; font-family:'Montserrat',sans-serif; font-size:15px;
+  }
+  .brand-text{line-height:1.1;}
+  .brand-text .kicker{font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); font-weight:700;}
+  .brand-text .name{font-weight:700; font-size:15px; color:var(--brown-dark);}
+  .nav-links{display:flex; gap:8px;}
+  .nav-links button{
+    background:none; border:1px solid rgba(44,21,5,.15); color:var(--brown-mid);
+    font-family:'Nunito',sans-serif; font-weight:600; font-size:12.5px;
+    padding:7px 12px; border-radius:20px; cursor:pointer;
+  }
+  .nav-links button:hover{border-color:var(--gold);}
+
+  .card{
+    width:100%; max-width:720px; background:#fff; border-radius:var(--radius);
+    box-shadow:0 10px 30px -12px rgba(44,21,5,.18);
+    border:1px solid rgba(200,146,42,.18);
+    overflow:hidden;
+  }
+  .card-header{
+    background:linear-gradient(135deg, var(--brown-dark), var(--brown-mid));
+    color:#fff; padding:26px 28px;
+  }
+  .card-header .eyebrow{
+    font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold-bright); font-weight:700; margin-bottom:6px;
+  }
+  .card-header h1{font-size:22px; font-weight:700;}
+  .card-header p{font-size:13px; color:#E9D9C0; margin-top:6px;}
+  .card-body{padding:28px;}
+
+  label{display:block; font-size:13px; font-weight:700; margin-bottom:6px; color:var(--brown-mid);}
+  input[type=text], select{
+    width:100%; padding:11px 13px; border-radius:9px; border:1.5px solid #E7DAC5;
+    font-family:'Nunito',sans-serif; font-size:14.5px; margin-bottom:16px; background:#FCFAF5;
+  }
+  input[type=text]:focus, select:focus{outline:none; border-color:var(--gold);}
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    background:linear-gradient(135deg, var(--gold-bright), var(--gold));
+    color:#fff; border:none; font-family:'Nunito',sans-serif; font-weight:700; font-size:14.5px;
+    padding:13px 22px; border-radius:9px; cursor:pointer; transition:transform .12s, box-shadow .12s;
+  }
+  .btn:hover{transform:translateY(-1px); box-shadow:0 6px 16px -6px rgba(200,146,42,.6);}
+  .btn:disabled{opacity:.5; cursor:not-allowed; transform:none; box-shadow:none;}
+  .btn.secondary{background:#fff; color:var(--brown-mid); border:1.5px solid #E7DAC5;}
+  .btn.danger{background:linear-gradient(135deg, var(--red), var(--red-dark));}
+  .btn.ghost{background:none; color:var(--brown-mid); border:1.5px solid transparent; padding:8px 12px;}
+
+  /* Progress bar */
+  .progress-wrap{padding:0 28px; margin-top:-2px;}
+  .progress-track{
+    height:8px; background:#F1E6CE; border-radius:6px; overflow:hidden; margin:14px 0 4px;
+  }
+  .progress-fill{
+    height:100%; background:linear-gradient(90deg, var(--gold), var(--gold-bright));
+    transition:width .3s ease;
+  }
+  .progress-label{font-size:12px; color:var(--brown-mid); font-weight:700; text-align:right;}
+
+  /* Question */
+  .q-index{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--gold); font-weight:700; margin-bottom:8px;}
+  .q-text{font-size:18px; font-weight:700; color:var(--brown-dark); margin-bottom:18px; line-height:1.4;}
+  .option{
+    display:flex; align-items:flex-start; gap:12px; padding:13px 15px; border:1.5px solid #EEE2C9;
+    border-radius:10px; margin-bottom:10px; cursor:pointer; transition:border-color .12s, background .12s;
+  }
+  .option:hover{border-color:var(--gold-bright); background:var(--gold-pale);}
+  .option.selected{border-color:var(--gold); background:var(--gold-pale);}
+  .option .letter{
+    width:26px; height:26px; border-radius:50%; background:#F1E6CE; color:var(--brown-mid);
+    font-weight:800; font-size:12.5px; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .option.selected .letter{background:var(--gold); color:#fff;}
+  .option-text{font-size:14.5px; padding-top:3px;}
+
+  .qnav{display:flex; justify-content:space-between; margin-top:22px; gap:10px;}
+  .dots{display:flex; flex-wrap:wrap; gap:6px; margin:18px 28px 0;}
+  .dot{
+    width:26px; height:26px; border-radius:50%; font-size:11px; font-weight:700;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    background:#F1E6CE; color:var(--brown-mid); border:1.5px solid transparent;
+  }
+  .dot.answered{background:var(--gold); color:#fff;}
+  .dot.current{border-color:var(--brown-dark);}
+
+  /* Result */
+  .score-hero{text-align:center; padding:20px 0 10px;}
+  .score-num{font-size:56px; font-weight:800; font-family:'Montserrat',sans-serif;}
+  .score-badge{
+    display:inline-block; padding:6px 16px; border-radius:20px; font-weight:700; font-size:13px;
+    margin-top:6px;
+  }
+  .badge-excelente{background:#E5F3E6; color:var(--green);}
+  .badge-aprovado{background:var(--gold-pale); color:var(--brown-mid);}
+  .badge-recuperacao{background:#FFF3D6; color:var(--amber);}
+  .badge-reprovado{background:#FBE4E4; color:var(--red-dark);}
+
+  .review-item{padding:14px 0; border-bottom:1px solid #F1E6CE;}
+  .review-item:last-child{border-bottom:none;}
+  .review-q{font-weight:700; font-size:14px; margin-bottom:6px;}
+  .review-answer{font-size:13px; margin-bottom:2px;}
+  .ok{color:var(--green); font-weight:700;}
+  .bad{color:var(--red-dark); font-weight:700;}
+
+  /* Admin/Dashboard */
+  .tabs{display:flex; gap:8px; padding:0 28px; margin-top:14px;}
+  .tab{padding:8px 14px; border-radius:8px 8px 0 0; font-size:13px; font-weight:700; cursor:pointer; color:var(--brown-mid);}
+  .tab.active{background:var(--gold-pale); color:var(--brown-dark);}
+  .stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;}
+  .stat-card{background:var(--gold-pale); border-radius:10px; padding:16px;}
+  .stat-card .val{font-size:24px; font-weight:800; font-family:'Montserrat',sans-serif; color:var(--brown-dark);}
+  .stat-card .lbl{font-size:11.5px; color:var(--brown-mid); font-weight:700; text-transform:uppercase; letter-spacing:.05em;}
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  th{text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--brown-mid); padding:8px 6px; border-bottom:2px solid #EEE2C9;}
+  td{padding:9px 6px; border-bottom:1px solid #F5EEDC;}
+  .qedit{border:1.5px solid #EEE2C9; border-radius:10px; padding:14px; margin-bottom:12px;}
+  .qedit textarea, .qedit input[type=text]{margin-bottom:8px;}
+  .qedit .opt-row{display:flex; gap:8px; align-items:center; margin-bottom:6px;}
+  .qedit .opt-row input[type=radio]{flex-shrink:0;}
+  .small{font-size:12px; color:var(--brown-mid);}
+  .warn-box{background:#FFF3D6; border:1px solid #E8C57A; border-radius:10px; padding:12px 14px; font-size:12.5px; color:var(--brown-mid); margin:16px 28px 0;}
+  .footer-note{max-width:720px; text-align:center; font-size:11.5px; color:#A6906F; margin-top:22px; line-height:1.6;}
+</style>
+</head>
+<body>
+
+<div class="topbar" id="topbar">
+  <div class="brand">
+    <div class="brand-mark">UP</div>
+    <div class="brand-text">
+      <div class="kicker">Cooperativa Chiquinho</div>
+      <div class="name">Universidade Chiquinho UP</div>
+    </div>
+  </div>
+  <div class="nav-links" id="navLinks">
+    <button onclick="goTo('admin')">Admin</button>
+    <button onclick="goTo('dashboard')">Dashboard</button>
+  </div>
+</div>
+<script>
+  // Modo participante: acessado via ?modo=avaliacao — esconde Admin/Dashboard
+  // e trava a navegação só na tela de prova. É esse link que vai no QR Code.
+  window.PARTICIPANT_MODE = new URLSearchParams(location.search).get('modo') === 'avaliacao';
+  if (window.PARTICIPANT_MODE) {
+    document.getElementById('navLinks').style.display = 'none';
+  }
+</script>
+
+<div id="app" class="card"></div>
+<div class="footer-note" id="footerNote"></div>
+
+<script type="module">
+/* =========================================================================
+   CAMADA DE DADOS (DAL)
+   Hoje: window.storage (persistente, mas visível somente dentro deste
+   artifact do Claude — não funciona se você hospedar este HTML fora, ex.
+   GitHub Pages). Amanhã: troque USE_FIREBASE para true e preencha
+   firebaseConfig para persistência real em produção.
+   ========================================================================= */
+const USE_FIREBASE = false;
+const firebaseConfig = {
+  // apiKey: "COLE_AQUI",
+  // authDomain: "COLE_AQUI",
+  // projectId: "COLE_AQUI",
+  // storageBucket: "COLE_AQUI",
+  // messagingSenderId: "COLE_AQUI",
+  // appId: "COLE_AQUI"
+};
+
+let db = null;
+if (USE_FIREBASE) {
+  const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+  const { getFirestore, collection, doc, getDocs, getDoc, setDoc, deleteDoc, addDoc }
+    = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+  const fbApp = initializeApp(firebaseConfig);
+  db = getFirestore(fbApp);
+  window._fb = { collection, doc, getDocs, getDoc, setDoc, deleteDoc, addDoc, db };
+}
+
+const DAL = {
+  async getQuestions() {
+    if (USE_FIREBASE) {
+      const { collection, getDocs, db } = window._fb;
+      const snap = await getDocs(collection(db, "questions"));
+      const qs = [];
+      snap.forEach(d => qs.push({ id: d.id, ...d.data() }));
+      qs.sort((a,b)=>a.order-b.order);
+      return qs.length ? qs : null;
+    }
+    try {
+      const r = await window.storage.get('questions', true);
+      return r ? JSON.parse(r.value) : null;
+    } catch { return null; }
+  },
+  async saveQuestions(qs) {
+    if (USE_FIREBASE) {
+      const { collection, doc, setDoc, db } = window._fb;
+      for (const q of qs) await setDoc(doc(db, "questions", q.id), q);
+      return;
+    }
+    await window.storage.set('questions', JSON.stringify(qs), true);
+  },
+  async saveResult(result) {
+    if (USE_FIREBASE) {
+      const { collection, addDoc, db } = window._fb;
+      await addDoc(collection(db, "results"), result);
+      return;
+    }
+    const id = 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+    await window.storage.set('results:' + id, JSON.stringify(result), true);
+  },
+  async listResults() {
+    if (USE_FIREBASE) {
+      const { collection, getDocs, db } = window._fb;
+      const snap = await getDocs(collection(db, "results"));
+      const rs = [];
+      snap.forEach(d => rs.push({ id: d.id, ...d.data() }));
+      return rs;
+    }
+    try {
+      const listRes = await window.storage.list('results:', true);
+      if (!listRes || !listRes.keys) return [];
+      const out = [];
+      for (const k of listRes.keys) {
+        try {
+          const r = await window.storage.get(k, true);
+          if (r) out.push(JSON.parse(r.value));
+        } catch {}
+      }
+      return out;
+    } catch { return []; }
+  }
+};
+
+/* =========================================================================
+   PERGUNTAS BASE — apenas as 20 perguntas fornecidas.
+   O prompt original citava 30; as 10 restantes (21–30) não foram enviadas,
+   então não foram inventadas aqui. Adicione-as pelo Painel Admin quando
+   tiver o conteúdo definido.
+   ========================================================================= */
+const DEFAULT_QUESTIONS = [
+["Em qual cidade nasceu a Chiquinho Sorvetes?",["Uberaba (MG)","Frutal (MG)","Uberlândia (MG)","Ribeirão Preto (SP)"],1],
+["Em que ano foi fundada a Chiquinho Sorvetes?",["1975","1980","1985","1990"],1],
+["Qual é o principal propósito da Chiquinho Sorvetes?",["Vender apenas sorvetes.","Oferecer os menores preços.","Proporcionar momentos de felicidade aos clientes.","Expandir internacionalmente."],2],
+["Qual destas atitudes representa melhor os valores da marca?",["Trabalhar individualmente.","Foco exclusivo em vendas.","Respeito, qualidade e atendimento de excelência.","Competição entre colaboradores."],2],
+["O que significa padronização na rede?",["Todas as lojas oferecerem a mesma experiência ao cliente.","Todas as lojas venderem os mesmos volumes.","Ter os mesmos funcionários.","Trabalhar apenas com promoções."],0],
+["Qual é a principal responsabilidade do Gerente?",["Apenas controlar o caixa.","Desenvolver pessoas e garantir os padrões da marca.","Fazer compras.","Trabalhar apenas no atendimento."],1],
+["O Coordenador deve ser reconhecido principalmente por:",["Delegar tudo.","Liderar pelo exemplo.","Evitar feedback.","Trabalhar sozinho."],1],
+["O feedback tem como principal objetivo:",["Punir colaboradores.","Desenvolver pessoas.","Aplicar advertências.","Corrigir escalas."],1],
+["O que é Comunicação Ativa?",["Apenas falar.","Escutar, compreender e comunicar-se com clareza.","Dar ordens.","Fazer reuniões longas."],1],
+["Ao receber uma reclamação de um cliente, o gestor deve:",["Ignorar.","Discutir.","Ouvir, demonstrar empatia e solucionar.","Encerrar o atendimento."],2],
+["Quem é responsável pela qualidade dos produtos?",["Apenas o gerente.","Apenas o franqueado.","Apenas a fábrica.","Toda a equipe."],3],
+["A limpeza da loja contribui para:",["Apenas estética.","Segurança alimentar e boa experiência.","Redução da equipe.","Aumento do estoque."],1],
+["O método PDCA começa com qual etapa?",["Agir.","Executar.","Planejar.","Verificar."],2],
+["A letra \"C\" do PDCA significa:",["Corrigir.","Criar.","Checar (Verificar).","Comunicar."],2],
+["O principal objetivo do PDCA é:",["Punir erros.","Promover melhoria contínua.","Aumentar custos.","Criar regras."],1],
+["O líder deve tomar decisões baseadas em:",["Opiniões pessoais.","Emoções.","Indicadores e fatos.","Preferências."],2],
+["O trabalho em equipe gera:",["Mais conflitos.","Cooperação e melhores resultados.","Menos produtividade.","Competição interna."],1],
+["Qual é a melhor forma de motivar uma equipe?",["Apenas cobrar metas.","Reconhecer, desenvolver e dar exemplo.","Aplicar advertências.","Trabalhar individualmente."],1],
+["O cliente deve sair da loja sentindo:",["Indiferença.","Pressa.","Felicidade e satisfação.","Apenas que comprou um produto."],2],
+["Excelência operacional significa:",["Fazer o mínimo.","Executar os processos com qualidade e disciplina.","Trabalhar sem padrões.","Apenas vender."],1],
+].map((q,i)=>({ id:'q'+(i+1), order:i+1, text:q[0], options:q[1], correct:q[2] }));
+
+/* ========================================================================= */
+
+const app = document.getElementById('app');
+const footerNote = document.getElementById('footerNote');
+let QUESTIONS = [];
+let state = { screen:'login', participant:null, answers:{}, current:0 };
+
+async function boot(){
+  QUESTIONS = await DAL.getQuestions();
+  if (!QUESTIONS) { QUESTIONS = DEFAULT_QUESTIONS; await DAL.saveQuestions(QUESTIONS); }
+  render();
+}
+window.goTo = (screen) => {
+  if (window.PARTICIPANT_MODE && (screen === 'admin' || screen === 'dashboard')) return;
+  state.screen = screen; render();
+};
+
+function render(){
+  footerNote.textContent = USE_FIREBASE
+    ? ''
+    : 'Modo de dados: armazenamento do artifact (compartilhado entre quem abrir este app aqui no Claude). Para uso em produção fora do Claude, configure o Firebase no topo do código.';
+  if (state.screen === 'login') return renderLogin();
+  if (state.screen === 'quiz') return renderQuiz();
+  if (state.screen === 'result') return renderResult();
+  if (state.screen === 'admin') return renderAdminGate();
+  if (state.screen === 'dashboard') return window.adminUnlocked ? renderDashboard() : renderAdminGate();
+}
+
+/* ---------- LOGIN ---------- */
+function renderLogin(){
+  app.innerHTML = `
+    <div class="card-header">
+      <div class="eyebrow">Avaliação · Formação de Gestores</div>
+      <h1>Universidade Cooperativa Chiquinho UP</h1>
+      <p>Trilha de Formação de Gerentes e Coordenadores — ${QUESTIONS.length} questões</p>
+    </div>
+    <div class="card-body">
+      <label>Nome completo</label>
+      <input type="text" id="inName" placeholder="Seu nome completo">
+      <label>Unidade / Loja</label>
+      <input type="text" id="inUnit" placeholder="Ex.: Chiquinho Alfenas 01">
+      <label>Cargo</label>
+      <select id="inRole">
+        <option value="Gerente">Gerente</option>
+        <option value="Coordenador">Coordenador</option>
+      </select>
+      <button class="btn" style="width:100%; margin-top:6px;" onclick="startQuiz()">Iniciar avaliação</button>
+    </div>`;
+}
+window.startQuiz = () => {
+  const name = document.getElementById('inName').value.trim();
+  const unit = document.getElementById('inUnit').value.trim();
+  const role = document.getElementById('inRole').value;
+  if (!name || !unit) { alert('Preencha nome e unidade para continuar.'); return; }
+  state.participant = { name, unit, role, startedAt: new Date().toISOString() };
+  state.answers = {}; state.current = 0; state.screen = 'quiz';
+  render();
+};
+
+/* ---------- QUIZ ---------- */
+function renderQuiz(){
+  const total = QUESTIONS.length;
+  const answeredCount = Object.keys(state.answers).length;
+  const q = QUESTIONS[state.current];
+  const selected = state.answers[q.id];
+
+  app.innerHTML = `
+    <div class="card-header">
+      <div class="eyebrow">${state.participant.unit} · ${state.participant.role}</div>
+      <h1 style="font-size:17px;">${state.participant.name}</h1>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" style="width:${(answeredCount/total*100).toFixed(0)}%"></div></div>
+      <div class="progress-label">${answeredCount}/${total} respondidas</div>
+    </div>
+    <div class="dots">${QUESTIONS.map((qq,i)=>`
+      <div class="dot ${state.answers[qq.id]!==undefined?'answered':''} ${i===state.current?'current':''}" onclick="jumpTo(${i})">${i+1}</div>
+    `).join('')}</div>
+    <div class="card-body">
+      <div class="q-index">Questão ${state.current+1} de ${total}</div>
+      <div class="q-text">${q.text}</div>
+      ${q.options.map((opt,i)=>`
+        <div class="option ${selected===i?'selected':''}" onclick="selectOpt('${q.id}',${i})">
+          <div class="letter">${String.fromCharCode(65+i)}</div>
+          <div class="option-text">${opt}</div>
+        </div>
+      `).join('')}
+      <div class="qnav">
+        <button class="btn secondary" onclick="prevQ()" ${state.current===0?'disabled':''}>← Anterior</button>
+        ${state.current < total-1
+          ? `<button class="btn" onclick="nextQ()">Próxima →</button>`
+          : `<button class="btn" onclick="finishQuiz()" ${answeredCount<total?'disabled':''}>Finalizar avaliação</button>`
+        }
+      </div>
+      ${state.current===total-1 && answeredCount<total ? `<p class="small" style="margin-top:10px;">Responda todas as questões para finalizar.</p>` : ''}
+    </div>`;
+}
+window.selectOpt = (qid, idx) => { state.answers[qid] = idx; render(); };
+window.jumpTo = (i) => { state.current = i; render(); };
+window.nextQ = () => { state.current = Math.min(state.current+1, QUESTIONS.length-1); render(); };
+window.prevQ = () => { state.current = Math.max(state.current-1, 0); render(); };
+
+window.finishQuiz = async () => {
+  let correct = 0;
+  const detail = QUESTIONS.map(q => {
+    const ans = state.answers[q.id];
+    const isCorrect = ans === q.correct;
+    if (isCorrect) correct++;
+    return { id:q.id, text:q.text, options:q.options, correct:q.correct, given:ans, isCorrect };
+  });
+  const score = Math.round((correct / QUESTIONS.length) * 100);
+  const classification = classify(score);
+  const result = {
+    name: state.participant.name, unit: state.participant.unit, role: state.participant.role,
+    score, correct, total: QUESTIONS.length, classification,
+    startedAt: state.participant.startedAt, finishedAt: new Date().toISOString(),
+    detail
+  };
+  await DAL.saveResult(result);
+  state.lastResult = result;
+  state.screen = 'result';
+  render();
+};
+
+function classify(score){
+  if (score >= 90) return 'Excelente';
+  if (score >= 80) return 'Aprovado';
+  if (score >= 60) return 'Recuperação';
+  return 'Reprovado';
+}
+function badgeClass(c){
+  return { 'Excelente':'badge-excelente','Aprovado':'badge-aprovado','Recuperação':'badge-recuperacao','Reprovado':'badge-reprovado' }[c];
+}
+
+/* ---------- RESULT ---------- */
+function renderResult(){
+  const r = state.lastResult;
+  app.innerHTML = `
+    <div class="card-header">
+      <div class="eyebrow">Resultado da avaliação</div>
+      <h1 style="font-size:17px;">${r.name} · ${r.unit}</h1>
+    </div>
+    <div class="card-body">
+      <div class="score-hero">
+        <div class="score-num" style="color:${r.score>=80?'#2E7D32':r.score>=60?'#B8860B':'#A8131A'}">${r.score}</div>
+        <div class="small">${r.correct} de ${r.total} questões corretas</div>
+        <div class="score-badge ${badgeClass(r.classification)}">${r.classification}</div>
+      </div>
+      ${r.score>=80 ? `<button class="btn" style="width:100%; margin:14px 0 4px;" onclick="downloadCertificate()">Baixar certificado (PDF)</button>` : `<div class="warn-box">Nota mínima para certificado: 80. Revise o gabarito abaixo e procure seu Coordenador para reciclagem.</div>`}
+      <h3 style="margin-top:22px; font-size:15px;">Gabarito comentado</h3>
+      ${r.detail.map((d,i)=>`
+        <div class="review-item">
+          <div class="review-q">${i+1}. ${d.text}</div>
+          <div class="review-answer">Sua resposta: <span class="${d.isCorrect?'ok':'bad'}">${d.given!==undefined?String.fromCharCode(65+d.given)+') '+d.options[d.given]:'Não respondida'}</span></div>
+          ${!d.isCorrect ? `<div class="review-answer">Correta: <span class="ok">${String.fromCharCode(65+d.correct)}) ${d.options[d.correct]}</span></div>` : ''}
+        </div>
+      `).join('')}
+      <button class="btn secondary" style="width:100%; margin-top:18px;" onclick="goTo('login')">Nova avaliação</button>
+    </div>`;
+}
+window.downloadCertificate = () => {
+  const r = state.lastResult;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+  const W = 297, H = 210;
+  doc.setFillColor(253,248,240); doc.rect(0,0,W,H,'F');
+  doc.setDrawColor(200,146,42); doc.setLineWidth(2.2); doc.rect(10,10,W-20,H-20);
+  doc.setDrawColor(232,160,32); doc.setLineWidth(0.6); doc.rect(14,14,W-28,H-28);
+  doc.setTextColor(200,146,42); doc.setFont('helvetica','bold'); doc.setFontSize(12);
+  doc.text('UNIVERSIDADE COOPERATIVA', W/2, 42, { align:'center' });
+  doc.setTextColor(44,21,5); doc.setFontSize(30);
+  doc.text('CHIQUINHO UP', W/2, 56, { align:'center' });
+  doc.setFont('helvetica','normal'); doc.setFontSize(13); doc.setTextColor(92,48,16);
+  doc.text('Certificado de Conclusão — Formação de Gerentes e Coordenadores', W/2, 68, { align:'center' });
+  doc.setFont('helvetica','bold'); doc.setFontSize(24); doc.setTextColor(44,21,5);
+  doc.text(r.name, W/2, 95, { align:'center' });
+  doc.setFont('helvetica','normal'); doc.setFontSize(12.5); doc.setTextColor(92,48,16);
+  doc.text(`${r.role} — ${r.unit}`, W/2, 105, { align:'center' });
+  doc.text(`concluiu a avaliação da trilha com aproveitamento de ${r.score}% (${r.classification})`, W/2, 118, { align:'center' });
+  doc.setFontSize(10.5); doc.setTextColor(140,110,70);
+  doc.text(`Emitido em ${new Date(r.finishedAt).toLocaleDateString('pt-BR')}`, W/2, 130, { align:'center' });
+  doc.setDrawColor(200,146,42); doc.line(W/2-35, 165, W/2+35, 165);
+  doc.setFontSize(10); doc.setTextColor(92,48,16);
+  doc.text('Coordenação Universidade Chiquinho UP', W/2, 172, { align:'center' });
+  doc.setFontSize(8); doc.setTextColor(170,150,110);
+  doc.text('Carlos Cleber da Silva Barros · Consultor de Vendas e Gestão', W/2, H-16, { align:'center' });
+  doc.save(`Certificado_${r.name.replace(/\s+/g,'_')}.pdf`);
+};
+
+/* ---------- ADMIN ---------- */
+window.adminUnlocked = false;
+function renderAdminGate(){
+  if (window.adminUnlocked) return renderAdmin();
+  app.innerHTML = `
+    <div class="card-header">
+      <div class="eyebrow">Área restrita — uso interno RH</div>
+      <h1 style="font-size:17px;">Painel Admin</h1>
+    </div>
+    <div class="card-body">
+      <div class="warn-box" style="margin:0 0 16px;">Senha fixa no código, sem autenticação real — combinado como aceitável por ser uso interno do RH. Troque a senha padrão abaixo antes de publicar e não reutilize senhas de outros sistemas aqui.</div>
+      <label>Senha de administrador</label>
+      <input type="text" id="adminPass" placeholder="Digite a senha">
+      <button class="btn" style="width:100%;" onclick="tryAdmin()">Entrar</button>
+      <button class="btn ghost" style="width:100%; margin-top:6px;" onclick="goTo('login')">Voltar</button>
+    </div>`;
+}
+window.tryAdmin = () => {
+  const p = document.getElementById('adminPass').value;
+  if (p === 'chiquinho2026') { window.adminUnlocked = true; render(); }
+  else alert('Senha incorreta.');
+};
+window.adminLogout = () => { window.adminUnlocked = false; goTo('login'); };
+function renderAdmin(){
+  app.innerHTML = `
+    <div class="card-header">
+      <div class="eyebrow">Painel Admin</div>
+      <h1 style="font-size:17px;">Gerenciar perguntas (${QUESTIONS.length})</h1>
+    </div>
+    <div class="card-body" id="adminBody">
+      <button class="btn" onclick="addQuestion()">+ Nova pergunta</button>
+      <button class="btn secondary" style="margin-left:8px;" onclick="goTo('login')">Voltar</button>
+      <button class="btn ghost" style="margin-left:8px;" onclick="adminLogout()">Sair</button>
+      <div id="qlist" style="margin-top:18px;"></div>
+    </div>`;
+  renderQList();
+}
+function renderQList(){
+  const qlist = document.getElementById('qlist');
+  qlist.innerHTML = QUESTIONS.map((q,qi)=>`
+    <div class="qedit">
+      <label class="small">Pergunta ${qi+1}</label>
+      <input type="text" value="${q.text.replace(/"/g,'&quot;')}" onchange="editQ(${qi},'text',this.value)">
+      ${q.options.map((o,oi)=>`
+        <div class="opt-row">
+          <input type="radio" name="correct${qi}" ${q.correct===oi?'checked':''} onchange="editQ(${qi},'correct',${oi})">
+          <input type="text" value="${o.replace(/"/g,'&quot;')}" onchange="editOpt(${qi},${oi},this.value)" style="margin-bottom:0;">
+        </div>
+      `).join('')}
+      <button class="btn danger" style="padding:7px 12px; font-size:12.5px; margin-top:6px;" onclick="removeQ(${qi})">Excluir</button>
+    </div>
+  `).join('');
+}
+window.addQuestion = async () => {
+  QUESTIONS.push({ id:'q'+Date.now(), order:QUESTIONS.length+1, text:'Nova pergunta', options:['Opção A','Opção B','Opção C','Opção D'], correct:0 });
+  await DAL.saveQuestions(QUESTIONS); renderAdmin();
+};
+window.removeQ = async (i) => {
+  if (!confirm('Excluir esta pergunta?')) return;
+  QUESTIONS.splice(i,1); await DAL.saveQuestions(QUESTIONS); renderAdmin();
+};
+window.editQ = async (i, field, val) => { QUESTIONS[i][field] = val; await DAL.saveQuestions(QUESTIONS); };
+window.editOpt = async (i, oi, val) => { QUESTIONS[i].options[oi] = val; await DAL.saveQuestions(QUESTIONS); };
+
+/* ---------- DASHBOARD ---------- */
+async function renderDashboard(){
+  app.innerHTML = `<div class="card-header"><div class="eyebrow">Painel</div><h1 style="font-size:17px;">Dashboard</h1></div><div class="card-body">Carregando…</div>`;
+  const results = await DAL.listResults();
+  const total = results.length;
+  const avg = total ? Math.round(results.reduce((s,r)=>s+r.score,0)/total) : 0;
+  const approved = results.filter(r=>r.score>=80).length;
+  const approvalRate = total ? Math.round(approved/total*100) : 0;
+
+  const byUnit = {};
+  results.forEach(r => { byUnit[r.unit] = byUnit[r.unit] || []; byUnit[r.unit].push(r.score); });
+  const ranking = Object.entries(byUnit).map(([unit,scores])=>({
+    unit, avg: Math.round(scores.reduce((a,b)=>a+b,0)/scores.length), n: scores.length
+  })).sort((a,b)=>b.avg-a.avg);
+
+  app.innerHTML = `
+    <div class="card-header">
+      <div class="eyebrow">Painel</div>
+      <h1 style="font-size:17px;">Dashboard — Chiquinho UP</h1>
+    </div>
+    <div class="card-body">
+      <button class="btn secondary" onclick="goTo('login')">Voltar</button>
+      <div class="stat-grid" style="margin-top:16px;">
+        <div class="stat-card"><div class="val">${total}</div><div class="lbl">Avaliações</div></div>
+        <div class="stat-card"><div class="val">${avg}</div><div class="lbl">Nota média</div></div>
+        <div class="stat-card"><div class="val">${approvalRate}%</div><div class="lbl">Taxa de aprovação</div></div>
+        <div class="stat-card"><div class="val">${ranking.length}</div><div class="lbl">Unidades avaliadas</div></div>
+      </div>
+      <h3 style="font-size:14px; margin-bottom:8px;">Ranking por unidade</h3>
+      <table>
+        <tr><th>Unidade</th><th>Nota média</th><th>Participantes</th></tr>
+        ${ranking.map(u=>`<tr><td>${u.unit}</td><td>${u.avg}</td><td>${u.n}</td></tr>`).join('') || `<tr><td colspan="3" class="small">Nenhum dado ainda.</td></tr>`}
+      </table>
+      <h3 style="font-size:14px; margin:18px 0 8px;">Histórico individual</h3>
+      <table>
+        <tr><th>Nome</th><th>Unidade</th><th>Nota</th><th>Status</th><th>Data</th></tr>
+        ${results.sort((a,b)=>new Date(b.finishedAt)-new Date(a.finishedAt)).map(r=>`
+          <tr><td>${r.name}</td><td>${r.unit}</td><td>${r.score}</td><td>${r.classification}</td><td>${new Date(r.finishedAt).toLocaleDateString('pt-BR')}</td></tr>
+        `).join('') || `<tr><td colspan="5" class="small">Nenhum dado ainda.</td></tr>`}
+      </table>
+    </div>`;
+}
+
+boot();
+</script>
+</body>
+</html>
